@@ -1,23 +1,23 @@
 export default {
-  beforeMount: (el) => {
+  beforeMount: (element) => {
     const loadImage = () => {
-      const imageElement = Array.from(el.children).find(
-        (el) => el.nodeName === "IMG"
+      const imageElement = Array.from(element.children).find(
+        (element) => element.nodeName === "IMG"
       );
       if (imageElement) {
         imageElement.addEventListener("load", () => {
-          console.log("first");
-          setTimeout(() => el.classList.add("loaded"), 100);
+          setTimeout(() => element.classList.add("loaded"), 100);
         });
         imageElement.addEventListener("error", () => console.log("error"));
         imageElement.src = imageElement.dataset.src;
       }
     };
+
     const handleIntersect = (entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           loadImage();
-          observer.unobserve(el);
+          observer.unobserve(element);
         }
       });
     };
@@ -28,8 +28,9 @@ export default {
         threshold: "0",
       };
       const observer = new IntersectionObserver(handleIntersect, options);
-      observer.observe(el);
+      observer.observe(element);
     };
+
     if (window["IntersectionObserver"]) {
       createObserver();
     } else {

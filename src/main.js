@@ -10,7 +10,7 @@ const app = createApp(App);
 
 app.use(router).use(store).use(VueLoading, {
   isFullPage: true,
-  loader: "dots",
+  loader: "bars",
   backgroundColor: "#00000",
   color: "#52A350",
 });
