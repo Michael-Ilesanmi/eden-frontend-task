@@ -4,6 +4,7 @@ export default createStore({
   state: {
     allDogs: null,
     currentDog: null,
+    allBreeds: null,
   },
   getters: {
     allDogs(state) {
@@ -11,6 +12,9 @@ export default createStore({
     },
     currentDog(state) {
       return state.currentDog;
+    },
+    allBreeds(state) {
+      return state.allBreeds;
     },
   },
   mutations: {
@@ -20,6 +24,9 @@ export default createStore({
     SET_CURRENT_DOG(state, dog) {
       state.currentDog = dog;
     },
+    SET_ALL_BREEDS(state, breeds) {
+      state.allBreeds = breeds;
+    },
   },
   actions: {
     storeDogs({ commit }, dogs) {
@@ -27,6 +34,9 @@ export default createStore({
     },
     storeCurrentDog({ commit }, dog) {
       commit("SET_CURRENT_DOG", dog);
+    },
+    storeBreeds({ commit }, breeds) {
+      commit("SET_ALL_BREEDS", breeds);
     },
   },
 });

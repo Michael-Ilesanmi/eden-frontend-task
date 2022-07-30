@@ -1,22 +1,16 @@
 <template>
   <main class="container py-16">
-    <div class="grid md:grid-flow-col grid-flow-row">
+    <div class="grid grid-flow-row sm:grid-flow-col gap-8 items-center">
       <h1 class="font-bold text-3xl">Dog App</h1>
-      <form
-        @submit.prevent="searchDogsByBreed()"
-        class="place-self-end grid grid-flow-col"
-      >
-        <input
-          type="text"
-          name="breedName"
-          id="breedName"
-          v-model="breedName"
+      <form @submit.prevent="searchDogsByBreed()" class="grid grid-flow-col">
+        <VueAutosearch
           placeholder="Search by breed..."
-          class="py-2 px-4 bg-gray-100 text-black font-light rounded-md mr-2"
+          v-model="breedName"
+          v-bind:options="breeds"
         />
         <button
           type="submit"
-          class="rounded-md bg-gray-200 text-black font-medium px-4"
+          class="rounded-md bg-gray-200 text-black font-medium px-4 ml-2"
         >
           Search
         </button>
@@ -37,6 +31,8 @@
 <script setup>
 import DogImage from "@/components/DogImageComponent.vue";
 
+import VueAutosearch from "vue-autosearch";
+
 import { computed, inject, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
@@ -47,11 +43,14 @@ const $loading = inject("$loading");
 const store = useStore();
 const router = useRouter();
 
-const breedName = ref("");
-const availableBreeds = ref([]);
+const breedName = ref({});
 
 const dogs = computed(() => {
   return store.state.allDogs;
+});
+
+const breeds = computed(() => {
+  return store.state.allBreeds;
 });
 
 const storeCurrentDog = (dog) => {
@@ -60,6 +59,8 @@ const storeCurrentDog = (dog) => {
 };
 
 const storeDogs = (dogs) => store.dispatch("storeDogs", dogs);
+
+const storeBreeds = (breeds) => store.dispatch("storeBreeds", breeds);
 
 const fetchDogs = async () => {
   const { data } = await axios.get(
@@ -80,18 +81,42 @@ const fetchAllDogs = async () => {
 const searchDogsByBreed = async () => {
   const loading = $loading.show();
   const { data } = await axios.get(
-    `https://dog.ceo/api/breed/${breedName.value}/images`
+    `https://dog.ceo/api/breed/${breedName.value.name}/images`
   );
   const dogs = data.message;
   storeDogs(dogs);
   loading.hide();
-}
+};
 
 onMounted(async () => {
   if (!dogs.value) fetchAllDogs();
-  const { data } = await axios.get("https://dog.ceo/api/breeds/list/all");
-  availableBreeds.value = data.message;
+  if (!breeds.value) {
+    const { data } = await axios.get("https://dog.ceo/api/breeds/list/all");
+    let i = 0;
+    const breeds = [];
+    Object.keys(data.message).forEach((element) => {
+      let data = {};
+      i++;
+      data.id = i;
+      data.name = element;
+      breeds.push(data);
+    });
+    storeBreeds(breeds);
+  }
 });
 </script>
 
-<style></style>
+<style src="vue-autosearch/dist/VueAutosearch.css"></style>
+
+<style>
+/* Hide scrollbar for Chrome, Safari and Opera */
+.autosearch__result::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.autosearch__result {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+</style>
